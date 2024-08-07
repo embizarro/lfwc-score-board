@@ -1,18 +1,29 @@
 package prv.mb.exercise.scoreboard.application;
 
-import org.testng.Assert;
+import org.mockito.Mock;
+import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import prv.mb.exercise.scoreboard.domain.*;
 
-import java.util.List;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
+@Listeners(MockitoTestNGListener.class)
 public class WorldCupScoreBoardServiceTest {
+
+    @Mock
+    private TeamService teamService;
+
+    @Mock
+    private MatchService matchService;
 
     private WorldCupScoreBoardService service;
 
     @BeforeMethod
     public void setUp() throws Exception {
-        this.service = new WorldCupScoreBoardService();
+        this.service = new WorldCupScoreBoardService(teamService, matchService);
     }
 
     @Test
@@ -20,14 +31,22 @@ public class WorldCupScoreBoardServiceTest {
         //given
         String homeTeamCountry = "Mexico";
         String awayTeamCountry = "Canada";
-        String expectedMatchId = "mexico-canada-match";
+
+        Team mockHomeTeam = mock(Team.class);
+        when(teamService.getByCountry(homeTeamCountry, TeamType.HOME)).thenReturn(mockHomeTeam);
+
+        Team mockAwayTeam = mock(Team.class);
+        when(teamService.getByCountry(awayTeamCountry, TeamType.AWAY)).thenReturn(mockAwayTeam);
+
+        Match mockMatch = mock(Match.class);
+        when(matchService.startNewMatch(mockHomeTeam, mockAwayTeam)).thenReturn(mockMatch);
 
         //when
-        String matchId = this.service.startNewMatch(homeTeamCountry, awayTeamCountry);
+        this.service.startNewMatch(homeTeamCountry, awayTeamCountry);
 
         //then
-        Assert.assertEquals(matchId, expectedMatchId);
-
+        verify(teamService, times(2)).getByCountry(anyString(), any(TeamType.class));
+        verify(matchService, times(1)).startNewMatch(mockHomeTeam, mockAwayTeam);
     }
 
     @Test
@@ -36,24 +55,30 @@ public class WorldCupScoreBoardServiceTest {
         String matchId = "mexico-canada-match";
         Integer homeTeamScore = 1;
         Integer awayTeamScore = 2;
+        Match mockMatch = mock(Match.class);
+        when(matchService.getMatchById(matchId)).thenReturn(mockMatch);
 
         //when
         this.service.updateScore(matchId, homeTeamScore, awayTeamScore);
 
         //then
-        Assert.fail();
+        verify(matchService, times(1)).getMatchById(matchId);
+        verify(matchService, times(1)).updateMatch(mockMatch, homeTeamScore, awayTeamScore);
     }
 
     @Test
     public void shouldFinishMatchByCallingExpectedServices() {
         //given
         String matchId = "mexico-canada-match";
+        Match mockMatch = mock(Match.class);
+        when(matchService.getMatchById(matchId)).thenReturn(mockMatch);
 
         //when
         this.service.finishMatch(matchId);
 
         //then
-        Assert.fail();
+        verify(matchService, times(1)).getMatchById(matchId);
+        verify(matchService, times(1)).finishMatch(mockMatch);
     }
 
     @Test
@@ -62,9 +87,9 @@ public class WorldCupScoreBoardServiceTest {
         //not required
 
         //when
-        List<String> matchesSummary = this.service.getMatchesSummary();
+        this.service.getMatchesSummary();
 
         //then
-        Assert.assertTrue(matchesSummary.size() > 0);
+        verify(matchService,times(1)).getMatchesSummary();
     }
 }

@@ -1,8 +1,18 @@
 package prv.mb.exercise.scoreboard.application;
 
+import prv.mb.exercise.scoreboard.domain.*;
+
 import java.util.List;
 
 class WorldCupScoreBoardService implements ScoreBoardService {
+
+    private final TeamService teamService;
+    private final MatchService matchService;
+
+    public WorldCupScoreBoardService(TeamService teamService, MatchService matchService) {
+        this.teamService = teamService;
+        this.matchService = matchService;
+    }
 
     /**
      * Starts new match with initial score 0:0
@@ -13,8 +23,10 @@ class WorldCupScoreBoardService implements ScoreBoardService {
      */
     @Override
     public String startNewMatch(String homeTeamCountry, String awayTeamCountry) {
+        Team homeTeam = teamService.getByCountry(homeTeamCountry, TeamType.HOME);
+        Team awayTeam = teamService.getByCountry(awayTeamCountry, TeamType.AWAY);
 
-        return "";
+        return matchService.startNewMatch(homeTeam, awayTeam).getId();
     }
 
     /**
@@ -26,6 +38,8 @@ class WorldCupScoreBoardService implements ScoreBoardService {
      */
     @Override
     public void updateScore(String matchId, Integer homeTeamScore, Integer awayTeamScore) {
+        Match match = matchService.getMatchById(matchId);
+        matchService.updateMatch(match, homeTeamScore, awayTeamScore);
     }
 
     /**
@@ -35,6 +49,8 @@ class WorldCupScoreBoardService implements ScoreBoardService {
      */
     @Override
     public void finishMatch(String matchId) {
+        Match match = matchService.getMatchById(matchId);
+        matchService.finishMatch(match);
     }
 
     /**
@@ -44,7 +60,7 @@ class WorldCupScoreBoardService implements ScoreBoardService {
      */
     @Override
     public List<String> getMatchesSummary() {
-        return List.of();
+        return matchService.getMatchesSummary();
     }
 
 
