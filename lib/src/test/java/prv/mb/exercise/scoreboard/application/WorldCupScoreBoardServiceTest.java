@@ -90,6 +90,6 @@ public class WorldCupScoreBoardServiceTest {
         this.service.getMatchesSummary();
 
         //then
-        verify(matchService,times(1)).getMatchesSummary();
+        verify(matchService, times(1)).getMatchesSummary();
     }
 }
