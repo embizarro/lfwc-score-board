@@ -7,10 +7,10 @@ import prv.mb.exercise.scoreboard.domain.Match;
 import java.util.ArrayList;
 import java.util.List;
 
-class InMemoryMatchRepository implements MatchRepository {
+public class InMemoryMatchRepository implements MatchRepository {
     private final Logger LOG = LoggerFactory.getLogger(InMemoryMatchRepository.class);
 
-    List<Match> matches;
+    private List<Match> matches;
 
     public InMemoryMatchRepository() {
         this.matches = new ArrayList<>();
@@ -28,7 +28,7 @@ class InMemoryMatchRepository implements MatchRepository {
         return matches.stream()
                 .filter(existingMatch -> existingMatch.getId().equals(matchId))
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException("No match found for provided match id: " + matchId));
+                .orElse(null);
 
     }
 

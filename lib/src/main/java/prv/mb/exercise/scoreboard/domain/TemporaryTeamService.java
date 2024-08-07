@@ -7,7 +7,7 @@ import static java.util.Objects.isNull;
 
 // for this exercise I provide a simple temporary service with set of hardcoded teams,
 // in production we can get all valid teams via REST endpoint or other appointed repository, e.g. database
-class TemporaryTeamService implements TeamService {
+public class TemporaryTeamService implements TeamService {
 
     private static final Set<Team> TEAMS = Set
             .of("Mexico", "Canada", "Spain", "Brazil", "Germany", "France", "Uruguay", "Italy", "Argentina", "Australia")

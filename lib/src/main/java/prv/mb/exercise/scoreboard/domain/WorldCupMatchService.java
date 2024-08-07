@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
-class WorldCupMatchService implements MatchService {
+public class WorldCupMatchService implements MatchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorldCupMatchService.class);
 
