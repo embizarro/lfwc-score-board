@@ -18,17 +18,24 @@ class InMemoryMatchRepository implements MatchRepository {
 
     @Override
     public Match add(Match match) {
-        return null;
+        matches.add(match);
+        LOG.info("Added new match to the board. {} matches in total at the moment.", matches.size());
+        return match;
     }
 
     @Override
     public Match get(String matchId) {
-        return null;
+        return matches.stream()
+                .filter(existingMatch -> existingMatch.getId().equals(matchId))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("No match found for provided match id: " + matchId));
 
     }
 
     @Override
     public void remove(Match matchToRemove) {
+        matches.removeIf(match -> match.getId().equals(matchToRemove.getId()));
+        LOG.info("Match has been removed from the board. {} matches in total at the moment.", matches.size());
     }
 
     @Override
@@ -36,4 +43,8 @@ class InMemoryMatchRepository implements MatchRepository {
         return matches;
     }
 
+    //for testing purposes only
+    void setMatches(List<Match> matches) {
+        this.matches = matches;
+    }
 }

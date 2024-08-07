@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import prv.mb.exercise.scoreboard.infrastructure.MatchRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ class WorldCupMatchService implements MatchService {
     @Override
     public Match startNewMatch(Team homeTeam, Team awayTeam) {
         Match match = new Match(homeTeam, awayTeam);
+        validateMatchDuplicate(match.getId());
 
         matchRepository.add(match);
 
@@ -33,6 +35,9 @@ class WorldCupMatchService implements MatchService {
 
     @Override
     public Match updateMatch(Match match, Integer homeTeamScore, Integer awayTeamScore) {
+        validateScore(homeTeamScore, TeamType.HOME);
+        validateScore(awayTeamScore, TeamType.AWAY);
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Match [{}] score has changed from {}:{} to {}:{} ",
                     match.getId(), match.getHomeScore(), match.getAwayScore(), homeTeamScore, awayTeamScore);
@@ -61,7 +66,11 @@ class WorldCupMatchService implements MatchService {
 
     @Override
     public List<String> getMatchesSummary() {
-        return matchRepository.getAllMatches().stream().map(Match::toString).collect(Collectors.toList());
+        return matchRepository.getAllMatches().stream()
+                .sorted(Comparator.comparing(Match::getTotalScore, Comparator.reverseOrder())
+                        .thenComparing(Match::getTimestamp, Comparator.reverseOrder()))
+                .map(Match::toString)
+                .collect(Collectors.toList());
     }
 
     private void validateIfMatchExists(String matchId, Match match) {
@@ -76,4 +85,17 @@ class WorldCupMatchService implements MatchService {
         }
     }
 
+    void validateMatchDuplicate(String matchId) {
+        Match duplicatedMatch = matchRepository.get(matchId);
+        if (!isNull(duplicatedMatch)) {
+            throw new IllegalArgumentException("Match with id " + matchId + " already exists");
+        }
+    }
+
+    void validateScore(Integer teamScore, TeamType teamType) {
+        if (teamScore < 0) {
+            String lowerCase = teamType.toString().toLowerCase();
+            throw new IllegalArgumentException("Value of " + lowerCase + " teamScore cannot be less than zero");
+        }
+    }
 }

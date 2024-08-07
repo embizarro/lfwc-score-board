@@ -92,6 +92,35 @@ public class WorldCupMatchServiceTest {
         //exception is thrown
     }
 
+    @Test(expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Value of home teamScore cannot be less than zero")
+    public void shouldThrowExceptionWhenHomeScoreIsNegative() {
+        //given
+        Integer teamScore = -1;
+        TeamType teamType = TeamType.HOME;
+
+        //when
+        this.service.validateScore(teamScore, teamType);
+
+        //then
+        //exception is thrown
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Match with id mexico-canada-match already exists")
+    public void shouldThrowExceptionWhenTryingToAddMatchThatAlreadyExists() {
+        //given
+        String matchId = "mexico-canada-match";
+        Match matchDuplicate = mock(Match.class);
+        when(matchRepository.get(matchId)).thenReturn(matchDuplicate);
+
+        //when
+        this.service.validateMatchDuplicate(matchId);
+
+        //then
+        //exception is thrown
+    }
+
     @Test
     public void shouldGetMatchesSummarySortedByTotalScoreDescAndTimestampDesc() {
         //given

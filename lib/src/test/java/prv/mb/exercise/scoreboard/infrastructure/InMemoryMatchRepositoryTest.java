@@ -5,6 +5,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import prv.mb.exercise.scoreboard.domain.Match;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
@@ -35,6 +38,7 @@ public class InMemoryMatchRepositoryTest {
     @Test
     public void shouldUpdateMatchIfExists() {
         //given
+        assembleRepoWithTwoMatches();
 
         //when
         Match result = this.repository.get(MATCH_ID_1);
@@ -46,6 +50,7 @@ public class InMemoryMatchRepositoryTest {
     @Test
     public void shouldRemoveMatchIfExists() {
         //given
+        assembleRepoWithTwoMatches();
         Match mockedMatch = assembleMatchWithId(MATCH_ID_1);
 
         //when
@@ -54,6 +59,16 @@ public class InMemoryMatchRepositoryTest {
         //then
         assertEquals(repository.getAllMatches().size(), 1);
         assertEquals(repository.getAllMatches().iterator().next().getId(), MATCH_ID_2);
+    }
+
+    private void assembleRepoWithTwoMatches() {
+        Match mockedMatch = assembleMatchWithId(MATCH_ID_1);
+        Match mockedMatch2 = assembleMatchWithId(MATCH_ID_2);
+
+        List<Match> matches = new ArrayList<>();
+        matches.add(mockedMatch);
+        matches.add(mockedMatch2);
+        this.repository.setMatches(matches);
     }
 
     private Match assembleMatchWithId(String matchId) {
